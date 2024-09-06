@@ -103,6 +103,8 @@ async function sendMessage() {
 }
 
 // Fetch messages when the page loads
-fetchMessages();
+setTimeout(()=>{
+    fetchMessages();
+},2000)
 
 </script>
