@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            width: 50%;
+            margin: 0 auto;
+        }
+        .messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message-user {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="message-list">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <input type="text" id="user" placeholder="Enter your name" />
+        <input type="text" id="message" placeholder="Enter your message" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+<script>
+    const API_URL = 'https://0b766ee70630e7baf6a3dfad8f370503.serveo.net/messages';
+
+// Fetch existing chat messages from the server
+async function fetchMessages() {
+    try {
+        const response = await fetch(API_URL);
+        const messages = await response.json();
+
+        // Render the messages to the UI
+        const messageList = document.getElementById('message-list');
+        messageList.innerHTML = ''; // Clear existing messages
+        messages.forEach((message) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.innerHTML = `<span class="message-user">${message.user}:</span> ${message.message}`;
+            messageList.appendChild(messageElement);
+        });
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+    }
+}
+
+// Send a new message to the server
+async function sendMessage() {
+    const user = document.getElementById('user').value;
+    const message = document.getElementById('message').value;
+
+    if (!user || !message) {
+        alert('Please enter both a name and a message.');
+        return;
+    }
+
+    const data = {
+        user,
+        message
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            // Clear the input fields
+            document.getElementById('user').value = '';
+            document.getElementById('message').value = '';
+
+            // Refresh the message list
+            fetchMessages();
+        } else {
+            console.error('Failed to send message:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error sending message:', error);
+    }
+}
+
+// Fetch messages when the page loads
+fetchMessages();
+
+</script>
